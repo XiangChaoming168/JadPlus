@@ -143,11 +143,11 @@ public class Decompile {
                 // 策略判断那些依赖包需要编译
                 if ("include".equals(strategy[0]) && Utils.matchKeys(file.getName(), strategy[1])) {
                     Constants.LOGGER.info("正在反编译 " + jarFile.getAbsolutePath() + " 的依赖jar " + file.getName());
-                    decompileJar(file, newDest, mapOptions);
+                    decompileJar(file, destDirPath + File.separator + "dependencies", mapOptions);
                 }
                 if ("exclude".equals(strategy[0]) && !Utils.matchKeys(file.getName(), strategy[1])) {
                     Constants.LOGGER.info("正在反编译 " + jarFile.getAbsolutePath() + " 的依赖jar " + file.getName());
-                    decompileJar(file, newDest, mapOptions);
+                    decompileJar(file, destDirPath + File.separator + "dependencies", mapOptions);
                 }
 
             } else {

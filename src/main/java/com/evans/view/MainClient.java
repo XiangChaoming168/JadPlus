@@ -209,17 +209,10 @@ class DetailPanelTimer {
 
 
     public void runTimer() {
-
+        long start = System.currentTimeMillis();
         while (true) {
 
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
             if (Constants.TIMER_COUNT >= 10) {
-
                 // 干掉漏网之鱼
                 java.util.List<File> fileList = FileOperation.traverseFolder(new File(frame.workTextField.getText()));
                 for (File file : FileOperation.filterFiles(fileList, ".class")) {
@@ -230,11 +223,20 @@ class DetailPanelTimer {
                 }
 
                 java.util.List<File> javaList = FileOperation.filterFiles(fileList, ".java");
-                frame.detailPane.setDetail("生成java文件 " + javaList.size() + " 个， 剩余class文件 " + 0 + " 个。");
 
+                frame.detailPane.setDetail("生成java文件 " + javaList.size() + " 个， 剩余class文件 " + 0 + " 个。");
                 frame.progressBar.setValue(100);
                 frame.progressBar.setString("100%");
+
+                long end = System.currentTimeMillis();
+                frame.detailPane.setDetail("总计耗时： " + (end - start) +" ms");
                 break;
+            }
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
 
             // 根据释放路径中 class 与 java 文件的比值算百分比
