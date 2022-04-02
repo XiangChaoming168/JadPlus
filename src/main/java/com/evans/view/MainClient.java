@@ -213,12 +213,12 @@ class DetailPanelTimer {
         while (true) {
 
             try {
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            if (Constants.TIMER_COUNT >= 8) {
+            if (Constants.TIMER_COUNT >= 10) {
 
                 // 干掉漏网之鱼
                 java.util.List<File> fileList = FileOperation.traverseFolder(new File(frame.workTextField.getText()));
