@@ -43,9 +43,6 @@ public class Decompile {
                     if (proxyPath.contains("$") && proxyPath.startsWith(clsPath.substring(0, clsPath.length()-6)+"$")) {
                         tempList.add(proxyPath);
                     }
-                    if (proxyPath.contains("_$") && proxyPath.startsWith(clsPath.substring(0, clsPath.length()-6)+"_$")) {
-                        tempList.add(proxyPath);
-                    }
                 }
                 javaFile.setProxyClassPath(tempList);
                 javaFileList.add(javaFile);
@@ -109,7 +106,6 @@ public class Decompile {
             Constants.executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    Constants.LOGGER.info(jf);
                     decompileClass(jf, mapOptions);
                 }
             });
@@ -143,11 +139,11 @@ public class Decompile {
                 // 策略判断那些依赖包需要编译
                 if ("include".equals(strategy[0]) && Utils.matchKeys(file.getName(), strategy[1])) {
                     Constants.LOGGER.info("正在反编译 " + jarFile.getAbsolutePath() + " 的依赖jar " + file.getName());
-                    decompileJar(file, destDirPath + File.separator + "dependencies", mapOptions);
+                    decompileJar(file, newDestDir.getParent(), mapOptions);
                 }
                 if ("exclude".equals(strategy[0]) && !Utils.matchKeys(file.getName(), strategy[1])) {
                     Constants.LOGGER.info("正在反编译 " + jarFile.getAbsolutePath() + " 的依赖jar " + file.getName());
-                    decompileJar(file, destDirPath + File.separator + "dependencies", mapOptions);
+                    decompileJar(file, newDestDir.getParent(), mapOptions);
                 }
 
             } else {

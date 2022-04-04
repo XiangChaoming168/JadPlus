@@ -1,5 +1,9 @@
 package com.evans.common;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.*;
 
 import com.evans.view.MainClient;
@@ -40,14 +44,15 @@ public class Constants {
      参数6:  ThreadFactory 线程工厂，传入Guava创建的ThreadFactoryBuilder 这里可以用其他的
      参数7： RejectedExecutionHandler 拒绝执行策略 多种
      */
-    public static final ExecutorService executorService = new ThreadPoolExecutor(1, 2,
+    public static final ExecutorService executorService = new ThreadPoolExecutor(1, nThreads,
             0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>(16), namedThreadFactory, new ThreadPoolExecutor.CallerRunsPolicy());
+            new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.CallerRunsPolicy());
 
 
     // 进度条参数
     public static int TIMER_COUNT = 0;
-    public static int CLASS_COUNT = 0;
-    public static int JAVA_COUNT = 0;
+    public static int CURRENT_FILE_COUNT = 0;
+    public static int CURRENT_CLASS_COUNT = 0;
+    public static int CURRENT_JAVA_COUNT = 0;
 
 }

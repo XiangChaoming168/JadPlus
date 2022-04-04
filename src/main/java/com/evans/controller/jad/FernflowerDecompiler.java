@@ -72,7 +72,7 @@ public class FernflowerDecompiler implements IBytecodeProvider, IResultSaver {
         }
 
         //PrintStreamLogger logger = new PrintStreamLogger(System.out);
-        FernflowerLoger logger = new FernflowerLoger();
+        FernflowerLoger logger = new FernflowerLoger(args);
         Fernflower engine = new Fernflower(this, this, mapOptions, logger);
         //FernflowerDecompiler decompiler = new FernflowerDecompiler(destination, mapOptions, logger);
 

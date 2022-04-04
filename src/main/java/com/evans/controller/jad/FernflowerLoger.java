@@ -4,14 +4,18 @@ import com.evans.common.Constants;
 import org.jetbrains.java.decompiler.main.extern.IFernflowerLogger;
 import org.jetbrains.java.decompiler.util.TextUtil;
 
+import java.util.List;
+
 
 public class FernflowerLoger extends IFernflowerLogger {
 
+    private String[] params;
     //private final PrintStream stream;
     private int indent;
 
-    public FernflowerLoger() {
+    public FernflowerLoger(String[] args) {
         //stream = printStream;
+        this.params = args;
         indent = 0;
     }
 
@@ -19,7 +23,12 @@ public class FernflowerLoger extends IFernflowerLogger {
     public void writeMessage(String message, IFernflowerLogger.Severity severity) {
         if (accepts(severity)) {
             String msg = severity.prefix + TextUtil.getIndentString(indent) + message;
-            Constants.LOGGER.info(msg);
+            Constants.executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    Constants.LOGGER.info(List.of(params) + "\r\n" + msg);
+                }
+            });
             //System.out.println(msg);
         }
     }

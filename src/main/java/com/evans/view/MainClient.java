@@ -212,10 +212,12 @@ class DetailPanelTimer {
         long start = System.currentTimeMillis();
         while (true) {
 
-            if (Constants.TIMER_COUNT >= 10) {
+            // 1.监听结束标志
+            if (Constants.TIMER_COUNT >= 5) {
                 // 干掉漏网之鱼
                 java.util.List<File> fileList = FileOperation.traverseFolder(new File(frame.workTextField.getText()));
-                for (File file : FileOperation.filterFiles(fileList, ".class")) {
+                java.util.List<File> classList = FileOperation.filterFiles(fileList, ".class");
+                for (File file : classList) {
                     JavaFile javaFile = new JavaFile();
                     javaFile.setClassPath(file.getAbsolutePath());
                     javaFile.setDestDirPath(file.getParent());
@@ -233,43 +235,46 @@ class DetailPanelTimer {
                 break;
             }
 
+            // 2.进程检测间隔
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            // 根据释放路径中 class 与 java 文件的比值算百分比
+            // 3.设置界面显示
             java.util.List<File> fileList = FileOperation.traverseFolder(new File(frame.workTextField.getText()));
-            int javaCount = FileOperation.filterFiles(fileList, ".java").size();
-            int classCount = FileOperation.filterFiles(fileList, ".class").size();
+            int currentJavaCount = FileOperation.filterFiles(fileList, ".java").size();
+            int currentClassCount = FileOperation.filterFiles(fileList, ".class").size();
 
-            frame.detailPane.setDetail("生成java文件 " + javaCount + " 个， 剩余class文件 " + classCount + " 个。");
+            frame.detailPane.setDetail("生成java文件 " + currentJavaCount + " 个， 剩余class文件 " + currentClassCount + " 个。");
 
-            if (javaCount + classCount > 0) {
-                String percent = Utils.getPercent(javaCount, javaCount + classCount);
-                frame.progressBar.setValue((int) Float.parseFloat(percent));
-                frame.progressBar.setString(percent + "%");
+            // 根据释放路径中 class 与 java 文件的比值算百分比
+            String percent = Utils.getPercent(currentJavaCount, fileList.size() + 1);
+            frame.progressBar.setValue((int) Float.parseFloat(percent));
+            frame.progressBar.setString(percent + "%");
 
-//                System.out.println("JAVA_COUNT=" + Constants.JAVA_COUNT+ " javaCount=" + javaCount);
-//                System.out.println("TIMER_COUNT=" + Constants.TIMER_COUNT);
-
-                // 设置监听变量
-                if (javaCount == Constants.JAVA_COUNT &&
-                        classCount == Constants.CLASS_COUNT &&
-                        classCount + javaCount == Constants.CLASS_COUNT + Constants.JAVA_COUNT) {
-                    frame.detailPane.setDetail("********************开始计次********************");
-                    Constants.TIMER_COUNT = Constants.TIMER_COUNT + 1;
-                }
-
-                Constants.CLASS_COUNT = classCount;
-                Constants.JAVA_COUNT = javaCount;
+            // 4.设置监听变量
+            if (Constants.CURRENT_JAVA_COUNT > 0 &&
+                    currentJavaCount == Constants.CURRENT_JAVA_COUNT &&
+                    currentClassCount == Constants.CURRENT_CLASS_COUNT &&
+                    fileList.size() == Constants.CURRENT_FILE_COUNT
+            ) {
+                Constants.TIMER_COUNT = Constants.TIMER_COUNT + 1;
+                frame.detailPane.setDetail("********************开始计次++" + Constants.TIMER_COUNT + "++********************");
             }
+
+            Constants.CURRENT_FILE_COUNT = fileList.size();
+            Constants.CURRENT_CLASS_COUNT = currentClassCount;
+            Constants.CURRENT_JAVA_COUNT = currentJavaCount;
+
         }
 
         Constants.TIMER_COUNT = 0;
-        Constants.JAVA_COUNT = 0;
-        Constants.CLASS_COUNT = 0;
+        Constants.CURRENT_JAVA_COUNT = 0;
+        Constants.CURRENT_CLASS_COUNT = 0;
+        Constants.CURRENT_FILE_COUNT = 0;
+
         frame.startButton.setText("开始");
         frame.detailPane.setDetail("任务结束！");
 
