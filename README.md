@@ -43,7 +43,8 @@
 
 选项“ren”（即 -ren=1）激活重命名功能。默认重命名策略如下：
 
-如果元素名称是保留字或短于 3 个字符，则重命名元素
-新名称是根据一个简单的模式构建的： (class|method|field)_<consecutive unique number>
+- 如果元素名称是保留字或短于 3 个字符，则重命名元素
+- 新名称是根据一个简单的模式构建的： (class|method|field)_<consecutive unique number>
 您可以通过提供您自己的实现来覆盖此规则，方法是在重命名时提供反编译器调用的 4 个关键方法。只需将在选项“urc”（例如 -urc=com.example.MyRenamer）中实现 org.jetbrains.java.decompiler.main.extern.IIdentifierRenamer 的类传递给 Fernflower。该类必须在应用程序类路径上可用。
+  
 从命名上应该清楚每个方法的含义：toBeRenamed 决定元素是否会被重命名，而其他三个分别为类、方法和字段提供新的名称。
