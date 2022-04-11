@@ -57,6 +57,9 @@ public class FileOperation {
                     // 关流顺序，先打开的后关闭
                     fos.close();
                     is.close();
+
+                    // 统计文件数量
+                    Constants.FILE_COUNT = Constants.FILE_COUNT + 1;
                 }
             }
         } catch (IOException e) {

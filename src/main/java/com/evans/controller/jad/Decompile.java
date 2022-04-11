@@ -46,6 +46,8 @@ public class Decompile {
                 }
                 javaFile.setProxyClassPath(tempList);
                 javaFileList.add(javaFile);
+
+                Constants.ClASS_COUNT.add(1);
             }
         }
         return javaFileList;
@@ -84,10 +86,13 @@ public class Decompile {
                 for (String cp : jf.getProxyClassPath()) {
                     new File(jf.getDestDirPath() + File.separator + new File(cp).getName()).delete();
                 }
-
             }
         } catch (Exception e) {
             Constants.LOGGER.error("反编译出错class " + jf);
+        } finally {
+            if (Constants.ClASS_COUNT.size() > 0) {
+                Constants.ClASS_COUNT.remove(0);
+            }
         }
     }
 
@@ -100,6 +105,8 @@ public class Decompile {
     public void decompileJar(File jarFile, String destDirPath, List<String> mapOptions) {
 
         List<JavaFile> javaModel = getJavaModel(jarFile, destDirPath);
+
+        Constants.JAVA_COUNT = Constants.JAVA_COUNT + javaModel.size();
 
         for (JavaFile jf: javaModel) {
 
@@ -185,6 +192,9 @@ public class Decompile {
                 if (!destDir.exists()) {
                     destDir.mkdirs();
                 }
+                Constants.FILE_COUNT = 1;
+                Constants.JAVA_COUNT = 1;
+                Constants.ClASS_COUNT.add(1);
                 decompileClass(javaFile, mapOptions);
             }
 

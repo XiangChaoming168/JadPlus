@@ -136,9 +136,7 @@ public class MainClient {
                         JOptionPane.showMessageDialog(mainPanel, "文件路径不存在", "警告", JOptionPane.WARNING_MESSAGE);
                     } else if (Utils.isEmpty(workT)) {
                         JOptionPane.showMessageDialog(mainPanel, "释放路径为不存在", "警告", JOptionPane.WARNING_MESSAGE);
-                    } else if (workDir.exists() && workDir.listFiles().length > 0) {
-                        JOptionPane.showMessageDialog(mainPanel, "释放路径不干净", "警告", JOptionPane.WARNING_MESSAGE);
-                    }else {
+                    } else {
                         detailPane.setDetail("");
                         detailPane.setDetail("任务开始...");
 
@@ -151,6 +149,7 @@ public class MainClient {
                         detailPane.setDetail("依赖包反编译策略：" + dependencySelect.getSelectedItem().toString()+ ": "+dependencyTextField.getText());
                         detailPane.setDetail("任务进行中...");
 
+                        // 启动反编译
                         Decompile decompile = new Decompile();
                         new Thread(new Runnable() {
                             @Override
@@ -161,6 +160,7 @@ public class MainClient {
                             }
                         }).start();
 
+                        // 启动监听
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -212,8 +212,19 @@ class DetailPanelTimer {
         long start = System.currentTimeMillis();
         while (true) {
 
-            // 1.监听结束标志
-            if (Constants.TIMER_COUNT >= 5) {
+            int fileCount = Constants.FILE_COUNT;
+            int javaCount = Constants.JAVA_COUNT;
+            int classCount = Constants.ClASS_COUNT.size();
+
+            // 1.设置进程检测间隔时间
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            // 2.监听结束标志判断 TIMER_COUNT
+            if (Constants.TIMER_COUNT >= 4) {
                 // 干掉漏网之鱼
                 java.util.List<File> fileList = FileOperation.traverseFolder(new File(frame.workTextField.getText()));
                 java.util.List<File> classList = FileOperation.filterFiles(fileList, ".class");
@@ -226,7 +237,7 @@ class DetailPanelTimer {
 
                 java.util.List<File> javaList = FileOperation.filterFiles(fileList, ".java");
 
-                frame.detailPane.setDetail("生成java文件 " + javaList.size() + " 个， 剩余class文件 " + 0 + " 个。");
+                frame.detailPane.setDetail("生成java文件 " + javaList.size() + " 个，总文件文件 " + fileList.size() + " 个。");
                 frame.progressBar.setValue(100);
                 frame.progressBar.setString("100%");
 
@@ -235,45 +246,36 @@ class DetailPanelTimer {
                 break;
             }
 
-            // 2.进程检测间隔
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            // 3.设置界面(进度条、文本域)显示
+            int fileCount2 = Constants.FILE_COUNT;
+            int javaCount2 = Constants.JAVA_COUNT;
+            int classCount2 = Constants.ClASS_COUNT.size();
 
-            // 3.设置界面显示
-            java.util.List<File> fileList = FileOperation.traverseFolder(new File(frame.workTextField.getText()));
-            int currentJavaCount = FileOperation.filterFiles(fileList, ".java").size();
-            int currentClassCount = FileOperation.filterFiles(fileList, ".class").size();
-
-            frame.detailPane.setDetail("生成java文件 " + currentJavaCount + " 个， 剩余class文件 " + currentClassCount + " 个。");
+            frame.detailPane.setDetail("生成java文件 " + javaCount2 + " 个，剩余class文件 "+ classCount2 + " 个，总文件文件 " + fileCount2 + " 个。");
 
             // 根据释放路径中 class 与 java 文件的比值算百分比
-            String percent = Utils.getPercent(currentJavaCount, fileList.size() + 1);
+            String percent = Utils.getPercent(javaCount2, javaCount2+classCount2+1);
             frame.progressBar.setValue((int) Float.parseFloat(percent));
             frame.progressBar.setString(percent + "%");
 
             // 4.设置监听变量
-            if (Constants.CURRENT_JAVA_COUNT > 0 &&
-                    currentJavaCount == Constants.CURRENT_JAVA_COUNT &&
-                    currentClassCount == Constants.CURRENT_CLASS_COUNT &&
-                    fileList.size() == Constants.CURRENT_FILE_COUNT
+            if (javaCount2 > 0 &&
+                    javaCount == javaCount2 &&
+                    fileCount == fileCount2 &&
+                    classCount == classCount2 &&
+                    classCount2 == 0
             ) {
                 Constants.TIMER_COUNT = Constants.TIMER_COUNT + 1;
                 frame.detailPane.setDetail("********************开始计次++" + Constants.TIMER_COUNT + "++********************");
             }
 
-            Constants.CURRENT_FILE_COUNT = fileList.size();
-            Constants.CURRENT_CLASS_COUNT = currentClassCount;
-            Constants.CURRENT_JAVA_COUNT = currentJavaCount;
-
         }
 
+        // 5.还原变量池
         Constants.TIMER_COUNT = 0;
-        Constants.CURRENT_JAVA_COUNT = 0;
-        Constants.CURRENT_CLASS_COUNT = 0;
-        Constants.CURRENT_FILE_COUNT = 0;
+        Constants.FILE_COUNT = 0;
+        Constants.JAVA_COUNT = 0;
+        Constants.ClASS_COUNT.clear();
 
         frame.startButton.setText("开始");
         frame.detailPane.setDetail("任务结束！");

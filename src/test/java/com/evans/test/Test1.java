@@ -26,9 +26,19 @@ public class Test1 {
         }
     }
 
+    static final int a = 1;
+
     public static void main(String[] args) {
 
-        System.out.println(List.of(new String[]{"ww", "aa"}));
+//        int b = a + 10;
+//        int c = a + 20;
+//        System.out.println(b);
+//        System.out.println(c);
+//        Constants.JAVA_COUNT.add(1);
+//        Constants.JAVA_COUNT.add(2);
+//        Constants.JAVA_COUNT.add(3);
+//        Constants.JAVA_COUNT.remove(0);
+        System.out.println(Constants.JAVA_COUNT);
 
     }
 }

@@ -49,10 +49,14 @@ public class Constants {
             new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.CallerRunsPolicy());
 
 
-    // 进度条参数
+    // 进度监听参数
+    // 总文件数量
+    public static int FILE_COUNT = 0;
+    // 总文件数量
+    public static int JAVA_COUNT = 0;
+    // 已经编译JAVA文件数量
+    public static final List<Integer> ClASS_COUNT = Collections.synchronizedList(new ArrayList<>());
+    // 计次
     public static int TIMER_COUNT = 0;
-    public static int CURRENT_FILE_COUNT = 0;
-    public static int CURRENT_CLASS_COUNT = 0;
-    public static int CURRENT_JAVA_COUNT = 0;
 
 }
