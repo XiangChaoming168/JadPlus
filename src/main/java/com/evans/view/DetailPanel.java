@@ -5,7 +5,7 @@ import javax.swing.*;
 public class DetailPanel extends JPanel {
 
     // 细节显示窗口
-    JTextArea detailTextArea = new JTextArea("Author:Xiang  QQ:239036082", 40, 101);
+    JTextArea detailTextArea = new JTextArea("Author:XiangChaoming  QQ:2868280595", 40, 101);
 
     public void init() {
         // 设置不可编辑

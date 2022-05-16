@@ -40,7 +40,11 @@ public class Decompile {
                 List<String> tempList = new ArrayList<>();
                 for (File file: destDir.listFiles()) {
                     String proxyPath = file.getAbsolutePath();
-                    if (proxyPath.contains("$") && proxyPath.startsWith(clsPath.substring(0, clsPath.length()-6)+"$")) {
+                    if (proxyPath.contains("$") &&
+                                    (proxyPath.startsWith(clsPath.substring(0, clsPath.length()-6)+"_$") ||
+                                    proxyPath.startsWith(clsPath.substring(0, clsPath.length()-6)+"$"))
+
+                    ) {
                         tempList.add(proxyPath);
                     }
                 }
@@ -77,8 +81,7 @@ public class Decompile {
         }
 
         try {
-            FernflowerDecompiler fernflowerDecompiler = new FernflowerDecompiler(paramsArray);
-            fernflowerDecompiler.mainWork();
+            new FernflowerDecompiler(paramsArray).mainWork();
 
             // 编译完成后删除 class
             new File(jf.getDestDirPath() + File.separator + new File(jf.getClassPath()).getName()).delete();
@@ -89,10 +92,6 @@ public class Decompile {
             }
         } catch (Exception e) {
             Constants.LOGGER.error("反编译出错class " + jf);
-        } finally {
-            if (Constants.ClASS_COUNT.size() > 0) {
-                Constants.ClASS_COUNT.remove(0);
-            }
         }
     }
 
@@ -114,6 +113,12 @@ public class Decompile {
                 @Override
                 public void run() {
                     decompileClass(jf, mapOptions);
+                    try {
+                        Constants.ClASS_COUNT.remove(0);
+                    } catch (Exception e) {
+
+                    }
+
                 }
             });
         }
@@ -194,7 +199,7 @@ public class Decompile {
                 }
                 Constants.FILE_COUNT = 1;
                 Constants.JAVA_COUNT = 1;
-                Constants.ClASS_COUNT.add(1);
+                // Constants.ClASS_COUNT.add(1);
                 decompileClass(javaFile, mapOptions);
             }
 

@@ -17,7 +17,7 @@ import java.util.Vector;
 public class MainClient {
 
     //创建主界面
-    JFrame mainFrame = new JFrame("JadPlus反编译");
+    JFrame mainFrame = new JFrame("JadPlus2.4");
 
     //选择部署包
     JLabel deployLabel = new JLabel("文件路径：");
