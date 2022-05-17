@@ -26,11 +26,12 @@ public class Decompile {
         List<File> clsFileList = FileOperation.filterFiles(fileList, ".class");
 
         for (File clsFile: clsFileList) {
-            // Java文件模型
-            JavaFile javaFile = new JavaFile();
+
             String clsPath = clsFile.getAbsolutePath();
 
             if (!clsPath.contains("$")) {
+                // Java文件模型
+                JavaFile javaFile = new JavaFile();
                 javaFile.setJarPath(jarFile.getAbsolutePath());
                 javaFile.setClassPath(clsPath);
                 javaFile.setDestDirPath(clsFile.getParent());
@@ -53,6 +54,8 @@ public class Decompile {
 
                 Constants.ClASS_COUNT.add(1);
             }
+
+
         }
         return javaFileList;
     }
@@ -80,19 +83,17 @@ public class Decompile {
             paramsArray[i] = params.get(i);
         }
 
-        try {
-            new FernflowerDecompiler(paramsArray).mainWork();
+        // 开始反编译class
+        new FernflowerDecompiler(paramsArray).mainWork();
 
-            // 编译完成后删除 class
-            new File(jf.getDestDirPath() + File.separator + new File(jf.getClassPath()).getName()).delete();
-            if (null != jf.getProxyClassPath()) {
-                for (String cp : jf.getProxyClassPath()) {
-                    new File(jf.getDestDirPath() + File.separator + new File(cp).getName()).delete();
-                }
+        // 编译完成后删除 class
+        new File(jf.getDestDirPath() + File.separator + new File(jf.getClassPath()).getName()).delete();
+        if (null != jf.getProxyClassPath()) {
+            for (String cp : jf.getProxyClassPath()) {
+                new File(jf.getDestDirPath() + File.separator + new File(cp).getName()).delete();
             }
-        } catch (Exception e) {
-            Constants.LOGGER.error("反编译出错class " + jf);
         }
+
     }
 
     /**
@@ -105,22 +106,23 @@ public class Decompile {
 
         List<JavaFile> javaModel = getJavaModel(jarFile, destDirPath);
 
-        Constants.JAVA_COUNT = Constants.JAVA_COUNT + javaModel.size();
-
         for (JavaFile jf: javaModel) {
 
             Constants.executorService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    decompileClass(jf, mapOptions);
                     try {
-                        Constants.ClASS_COUNT.remove(0);
+                        if (!Constants.ClASS_COUNT.isEmpty()){
+                            Constants.ClASS_COUNT.remove(0);
+                        }
+                        decompileClass(jf, mapOptions);
                     } catch (Exception e) {
-
+                        Constants.LOGGER.error("反编译出错->" + jf.toString());
                     }
-
                 }
             });
+
+            Constants.JAVA_COUNT = Constants.JAVA_COUNT + 1;
         }
 
     }
@@ -174,6 +176,9 @@ public class Decompile {
      */
     public void decompileJarAll(File srcDir, String destDirPath, List<String> mapOptions, String[] strategy){
 
+        Constants.FILE_COUNT = 1;
+        Constants.JAVA_COUNT = 1;
+
         if (srcDir.isDirectory()) {
             // 获取目录下所有文件
             for (File file : FileOperation.traverseFolder(srcDir)) {
@@ -186,9 +191,7 @@ public class Decompile {
         if (srcDir.isFile()) {
             if (srcDir.getName().endsWith("jar") || srcDir.getName().endsWith("war")) {
                 decompileJarSecond(srcDir, destDirPath, mapOptions, strategy);
-            }
-
-            if (srcDir.getName().endsWith(".class")) {
+            } else if (srcDir.getName().endsWith(".class")) {
 
                 JavaFile javaFile = new JavaFile();
                 javaFile.setClassPath(srcDir.getAbsolutePath());
@@ -197,8 +200,7 @@ public class Decompile {
                 if (!destDir.exists()) {
                     destDir.mkdirs();
                 }
-                Constants.FILE_COUNT = 1;
-                Constants.JAVA_COUNT = 1;
+
                 // Constants.ClASS_COUNT.add(1);
                 decompileClass(javaFile, mapOptions);
             }

@@ -17,7 +17,7 @@ import java.util.Vector;
 public class MainClient {
 
     //创建主界面
-    JFrame mainFrame = new JFrame("JadPlus2.4");
+    JFrame mainFrame = new JFrame("JadPlus2.4+");
 
     //选择部署包
     JLabel deployLabel = new JLabel("文件路径：");
@@ -225,6 +225,7 @@ class DetailPanelTimer {
 
             // 2.监听结束标志判断 TIMER_COUNT
             if (Constants.TIMER_COUNT >= 4) {
+                frame.detailPane.setDetail("正在进行特殊class文件反编译，请勿关闭窗口!");
                 // 干掉漏网之鱼
                 java.util.List<File> fileList = FileOperation.traverseFolder(new File(frame.workTextField.getText()));
                 java.util.List<File> classList = FileOperation.filterFiles(fileList, ".class");
@@ -237,7 +238,7 @@ class DetailPanelTimer {
 
                 java.util.List<File> javaList = FileOperation.filterFiles(fileList, ".java");
 
-                frame.detailPane.setDetail("生成java文件 " + javaList.size() + " 个，总文件文件 " + fileList.size() + " 个。");
+                frame.detailPane.setDetail("生成java文件 " + javaList.size() + " 个，总文件 " + fileList.size() + " 个。");
                 frame.progressBar.setValue(100);
                 frame.progressBar.setString("100%");
 
@@ -251,7 +252,7 @@ class DetailPanelTimer {
             int javaCount2 = Constants.JAVA_COUNT;
             int classCount2 = Constants.ClASS_COUNT.size();
 
-            frame.detailPane.setDetail("生成java文件 " + javaCount2 + " 个，剩余class文件 "+ classCount2 + " 个，总文件文件 " + fileCount2 + " 个。");
+            frame.detailPane.setDetail("预计生成java文件 " + javaCount2 + " 个，实时剩余class文件 "+ classCount2 + " 个，复制总文件 " + fileCount2 + " 个。");
 
             // 根据释放路径中 class 与 java 文件的比值算百分比
             String percent = Utils.getPercent(javaCount2, javaCount2+classCount2+1);
@@ -266,7 +267,7 @@ class DetailPanelTimer {
                     classCount2 == 0
             ) {
                 Constants.TIMER_COUNT = Constants.TIMER_COUNT + 1;
-                frame.detailPane.setDetail("********************开始计次++" + Constants.TIMER_COUNT + "++********************");
+                frame.detailPane.setDetail("********************开始第 " + Constants.TIMER_COUNT + " 次检查********************");
             }
 
         }
