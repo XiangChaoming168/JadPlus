@@ -35,28 +35,32 @@ public class FileOperation {
                 if (zipEntry.isDirectory()) {
                     targetFile.mkdirs();
                 } else {
+                    // 如果文件存在就不复制
+                    if (targetFile.exists()) {
+                       Constants.LOGGER.info("文件【" + targetFile.getAbsolutePath() + "】已经存在");
+                    } else {
+                        // 保证这个文件的父文件夹必须要存在
+                        if(!targetFile.getParentFile().exists()){
+                            targetFile.getParentFile().mkdirs();
+                        }
 
-                    // 保证这个文件的父文件夹必须要存在
-                    if(!targetFile.getParentFile().exists()){
-                        targetFile.getParentFile().mkdirs();
+                        // 将压缩文件内容写入到这个文件中
+                        InputStream is = zipFile.getInputStream(zipEntry);
+                        FileOutputStream fos = new FileOutputStream(targetFile);
+
+                        int len;
+                        byte[] buf = new byte[BUFFER_SIZE];
+                        while ((len = is.read(buf)) != -1) {
+                            fos.write(buf, 0, len);
+                        }
+
+                        // 把释放文件路径添加到集合
+                        zipFilesPathList.add(targetFile);
+
+                        // 关流顺序，先打开的后关闭
+                        fos.close();
+                        is.close();
                     }
-
-                    // 将压缩文件内容写入到这个文件中
-                    InputStream is = zipFile.getInputStream(zipEntry);
-                    FileOutputStream fos = new FileOutputStream(targetFile);
-
-                    int len;
-                    byte[] buf = new byte[BUFFER_SIZE];
-                    while ((len = is.read(buf)) != -1) {
-                        fos.write(buf, 0, len);
-                    }
-
-                    // 把释放文件路径添加到集合
-                    zipFilesPathList.add(targetFile);
-
-                    // 关流顺序，先打开的后关闭
-                    fos.close();
-                    is.close();
 
                     // 统计文件数量
                     Constants.FILE_COUNT = Constants.FILE_COUNT + 1;

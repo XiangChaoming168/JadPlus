@@ -1,6 +1,8 @@
 // Copyright 2000-2017 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.java.decompiler.main.extern;
 
+import com.evans.common.Constants;
+
 public abstract class IFernflowerLogger {
 
   public enum Severity {
@@ -29,6 +31,7 @@ public abstract class IFernflowerLogger {
 
   public void writeMessage(String message, Throwable t) {
     writeMessage(message, Severity.ERROR, t);
+    Constants.LOGGER.error(message);
   }
 
   public void startReadingClass(String className) { }

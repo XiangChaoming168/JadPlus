@@ -53,10 +53,12 @@ public class Constants {
     // 总文件数量
     public static int FILE_COUNT = 0;
     // 总文件数量
-    public static int JAVA_COUNT = 0;
+    public static final List<Integer> JAVA_COUNT = Collections.synchronizedList(new ArrayList<>());
     // 已经编译JAVA文件数量
     public static final List<Integer> ClASS_COUNT = Collections.synchronizedList(new ArrayList<>());
     // 计次
     public static int TIMER_COUNT = 0;
+    // MainClient 计数
+    public static int MC_COUNT = 0;
 
 }

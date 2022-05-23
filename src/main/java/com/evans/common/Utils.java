@@ -34,4 +34,8 @@ public class Utils {
         double result = (float) number / (float) denominator * 100;
         return String.format("%.2f", result);
     }
+
+
+
+
 }

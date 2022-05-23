@@ -17,7 +17,7 @@ import java.util.Vector;
 public class MainClient {
 
     //创建主界面
-    JFrame mainFrame = new JFrame("JadPlus2.4+");
+    JFrame mainFrame = new JFrame("JadPlus2.4.5");
 
     //选择部署包
     JLabel deployLabel = new JLabel("文件路径：");
@@ -46,6 +46,8 @@ public class MainClient {
 
     DetailPanel detailPane = new DetailPanel();
     JadSettingPanel jadSettingPanel = new JadSettingPanel();
+
+    Decompile decompile = new Decompile();
 
     public void init() {
 
@@ -150,7 +152,7 @@ public class MainClient {
                         detailPane.setDetail("任务进行中...");
 
                         // 启动反编译
-                        Decompile decompile = new Decompile();
+                        new File(workTextField.getText()).mkdirs();
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -213,12 +215,12 @@ class DetailPanelTimer {
         while (true) {
 
             int fileCount = Constants.FILE_COUNT;
-            int javaCount = Constants.JAVA_COUNT;
+            int javaCount = Constants.JAVA_COUNT.size();
             int classCount = Constants.ClASS_COUNT.size();
 
             // 1.设置进程检测间隔时间
             try {
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -227,18 +229,11 @@ class DetailPanelTimer {
             if (Constants.TIMER_COUNT >= 4) {
                 frame.detailPane.setDetail("正在进行特殊class文件反编译，请勿关闭窗口!");
                 // 干掉漏网之鱼
-                java.util.List<File> fileList = FileOperation.traverseFolder(new File(frame.workTextField.getText()));
-                java.util.List<File> classList = FileOperation.filterFiles(fileList, ".class");
-                for (File file : classList) {
-                    JavaFile javaFile = new JavaFile();
-                    javaFile.setClassPath(file.getAbsolutePath());
-                    javaFile.setDestDirPath(file.getParent());
-                    new Decompile().decompileClass(javaFile, frame.jadSettingPanel.getOptionsMap());
-                }
+                Constants.JAVA_COUNT.clear();
+                Constants.FILE_COUNT = 0;
+                frame.decompile.decompileRemain(new File(frame.workTextField.getText()), frame.jadSettingPanel.getOptionsMap());
 
-                java.util.List<File> javaList = FileOperation.filterFiles(fileList, ".java");
-
-                frame.detailPane.setDetail("生成java文件 " + javaList.size() + " 个，总文件 " + fileList.size() + " 个。");
+                frame.detailPane.setDetail("生成java文件 " + Constants.JAVA_COUNT.size() + " 个，总文件 " + Constants.FILE_COUNT + " 个。");
                 frame.progressBar.setValue(100);
                 frame.progressBar.setString("100%");
 
@@ -249,10 +244,8 @@ class DetailPanelTimer {
 
             // 3.设置界面(进度条、文本域)显示
             int fileCount2 = Constants.FILE_COUNT;
-            int javaCount2 = Constants.JAVA_COUNT;
+            int javaCount2 = Constants.JAVA_COUNT.size();
             int classCount2 = Constants.ClASS_COUNT.size();
-
-            frame.detailPane.setDetail("预计生成java文件 " + javaCount2 + " 个，实时剩余class文件 "+ classCount2 + " 个，复制总文件 " + fileCount2 + " 个。");
 
             // 根据释放路径中 class 与 java 文件的比值算百分比
             String percent = Utils.getPercent(javaCount2, javaCount2+classCount2+1);
@@ -260,14 +253,18 @@ class DetailPanelTimer {
             frame.progressBar.setString(percent + "%");
 
             // 4.设置监听变量
-            if (javaCount2 > 0 &&
-                    javaCount == javaCount2 &&
-                    fileCount == fileCount2 &&
-                    classCount == classCount2 &&
-                    classCount2 == 0
+            if (javaCount == javaCount2 &&
+                fileCount == fileCount2 &&
+                classCount == classCount2
             ) {
-                Constants.TIMER_COUNT = Constants.TIMER_COUNT + 1;
-                frame.detailPane.setDetail("********************开始第 " + Constants.TIMER_COUNT + " 次检查********************");
+                Constants.MC_COUNT ++;
+                if (Constants.MC_COUNT%4 == 0) {
+                    Constants.TIMER_COUNT ++;
+                    frame.detailPane.setDetail("********************开始第 " + Constants.TIMER_COUNT + " 次检查********************");
+                }
+
+            } else {
+                frame.detailPane.setDetail("预计生成java文件 " + javaCount2 + " 个，实时剩余class文件 "+ classCount2 + " 个，复制总文件 " + fileCount2 + " 个。");
             }
 
         }
@@ -275,8 +272,9 @@ class DetailPanelTimer {
         // 5.还原变量池
         Constants.TIMER_COUNT = 0;
         Constants.FILE_COUNT = 0;
-        Constants.JAVA_COUNT = 0;
+        Constants.JAVA_COUNT.clear();
         Constants.ClASS_COUNT.clear();
+        Constants.MC_COUNT = 0;
 
         frame.startButton.setText("开始");
         frame.detailPane.setDetail("任务结束！");
